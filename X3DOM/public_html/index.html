@@ -1,0 +1,560 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+        <link rel="icon" type="image/png" href="imagenes/ico_.png" />
+       <link href='http://fonts.googleapis.com/css?family=PT+Sans' rel='stylesheet' type='text/css'>
+        <title>My Noria X3DOM</title>
+<!--        <script type='text/javascript' src='http://www.x3dom.org/download/x3dom.js'></script>-->
+        <link rel="stylesheet" href="estilos/estilos.css" type="text/css"></link>
+        <script type="text/javascript" src="java/funciones.js"></script>
+        <script type="text/javascript" src="java/x3dom-full.js"></script>
+        <script type="text/javascript" src="java/visualizeTurntable.js" ></script>
+        <script type="text/javascript" src="java/jquery-2.1.0.min.js" ></script>
+        <link rel="stylesheet" type="text/css" href="estilos/x3dom.css" />
+    </head>
+    <body >
+        <div id="titulo">
+             <table style="width:100%">
+                <tr id="htmlPageHeader">
+                   <td style="text-align:left;">
+                      <h1 >Práctica de Sistemas Gráficos -  X3DOM</h1>
+                   </td>
+                    <td id="checkBoxCell" style="text-align:right">
+                       statistics<input id="checkBoxOverlayStatistics" type="checkbox" value="Overlay statistics"
+                                             checked="checked" onclick ="toggleOverlayStatistics();" />
+                       debug log<input id="checkBoxShowDebugLog" type="checkbox" value="Debugger log"
+                              checked="checked"  onclick="toggleShowDebugLog();"/>
+                   </td>
+                </tr>
+            </table>
+        </div>
+
+        <h3>Resumen <input type="checkbox" id="resumen"  onclick="if(this.checked)ver();else ocultar();"></h3>
+
+        <div id="contenedor">
+
+            <p>La noria se compone de:</p>
+            <ul>
+              <li> Una parte de la estructura fija (los soportes).   </li>
+              <li> Una parte móvil de la estructura (la rueda).</li>
+              <li> 8 cabinas.</li>
+            </ul>
+             <p> Cámaras</p>
+             <ul>
+                <li>Cámara 1 - es interactiva hace uso de las teclas y mouse. </li>
+                <li>Cámara 2 - visualización de la escena (orientación). </li>
+             </ul>
+            <p>
+                <strong style="color: greenyellow; ">¡importante! </strong>
+                antes del uso de cada una de las cámaras hacer un reset view (r).<br>
+               En el modo Fly, Walk y game, la noria no se puede parar e iniciar el movimiento.
+               La funcionalidad de la Noria se puede ver con los otros modos.
+            </p>
+
+            <p>Además, la escena tiene un suelo con textura de césped.</p>
+            <hr>
+            <h5>Integrantes: </h5>
+        </div>
+        <hr>
+
+    <div>
+
+    <!--camara2-->
+         <div id="basic">
+             <table>
+                 <tr>
+                    <td> <button  onclick="document.getElementById('front').setAttribute('set_bind', 'true');" style="border: none; background: transparent;"> <img class="img" src="images/camera.png"></img></button></td><td>Front</td>
+                    <td> <button  onclick="document.getElementById('right').setAttribute('set_bind', 'true');" style="border: none; background: transparent; "> <img class="img" src="images/camera.png"></img></button></td><td>Right</td>
+                    <td> <button  onclick="document.getElementById('left').setAttribute('set_bind', 'true');" style="border: none; background: transparent; "> <img class="img" src="images/camera.png"></img></button></td><td>Left </td>
+                    <td> <button  onclick="document.getElementById('top').setAttribute('set_bind', 'true');" style="border: none; background: transparent;  "> <img class="img" src="images/camera.png"></img></button></td><td>Top</td>
+                 </tr>
+            </table>
+         </div>
+<!--camara interactiva-->
+
+        <div id="mainNav">
+            Mode: <select id="modeSelect"></select> Shortcut: <span id="shortcut"></span>
+            <hr></hr>
+            <div id="buttonArea">
+                <table  id="mouseTable">
+                    <tr id="mouseRow"><td><img class="img" src="images/Mouse.png"></img></td><td id="mouse"></td></tr>
+                    <tr id="mouseLeftRow"><td><img class="img" src="images/Mouse_Left.png"></img></td><td id="mouseLeft"></td></tr>
+                    <tr id="mouseRightRow"><td><img class="img" src="images/Mouse_Right.png"></img></td><td id="mouseRight"></td></tr>
+                    <tr id="mouseWheelScrollRow"><td><img class="img" src="images/Mouse_Wheel_Scroll.png"></img></td><td id="mouseWheelScroll"></td></tr>
+                    <tr id="mouseWheelPressRow"><td><img class="img" src="images/Mouse_Wheel_Press.png"></img></td><td id="mouseWheelPress"></td></tr>
+                </table>
+                <table id="buttonTable">                   </table>
+            </div>
+            <div id="turntableArea">
+		<hr />
+		<b>Turntable mode settings</b><br />
+		<table>
+                    <tr>
+                        <td><canvas id="turntableVis" width='80px' height='80px'></canvas></td>
+                        <td>
+                            Upper bound: <input type='number' class='turntableInput' id='upperInput' value='0.2' min='0' max='3.14' step='0.1' /><br />
+                            Lower bound: <input type='number' class='turntableInput' id='lowerInput' value='1.4' min='0' max='3.14' step='0.1' />
+                        </td>
+                    </tr>
+		</table>
+	</div>
+
+        </div>
+        <div id="nonInteractive">
+            <h4>Non-interactive<br>camera movement</h4>
+            <table>
+                <tr><td><div class='key'>r</div></td> <td></td><td><div class='key'>a</div></td></tr>
+                <tr><td>Reset view</td><td></td><td>Show all</td></tr>
+            </table>
+        </div>
+
+<!--escena-->
+    <x3d id='x3dcontext' showStat='true' showLog='true' showProgress='bar' >
+        <scene DEF='scene' dopickpass='false'>
+            <!--camara interactiva-->
+               <viewpoint ID='CAM_1' DEF='CAM_1' position="0 0 15" orientation="0 0 1 0"></viewpoint>
+           <!--camara  2-->
+            <Viewpoint id="front" position="0 0 15" orientation="0 1 0 0"   description="camera"></viewpoint>
+            <Viewpoint id="right" position="-6.43383 1.07351 -3.28700" orientation="-0.00318 -0.99950 -0.03159 2.06609" description="camera"></Viewpoint>
+            <Viewpoint id="left" position="12.70190 1.05153 -0.57128" orientation="-0.08205 0.99612 -0.03175 1.73722" description="camera"></Viewpoint>
+            <Viewpoint id="top" position="0.05087 7.78235 -1.75890" orientation="0.00307 0.87466 0.48473 -3.12040" description="camera"></Viewpoint>
+
+            <navigationInfo type='"fly" "walk" "any" ' id="navType" headlight="true" speed="1"  transitionTime="1"></navigationInfo>
+            <DirectionalLight direction='-1 -1 0.3' intensity='1' shadowIntensity='0.7' ></directionallight>
+           <!--<SpotLight id='spot' on ="TRUE" beamWidth='0.9' color='0 0.5 0.9' cutOffAngle='0.78' location='0 0 12' radius='22' >  </SpotLight>-->
+
+<!--INICIO TRANSFORMACIONES-->
+    <transform  rotation=" 0 1 0 0">
+        <!--SUELO-->
+            <transform DEF="SUELO" translation="0 -3 0" >
+                <shape>
+                    <Appearance>
+                        <Texture  url="texturas/sueloapt.JPG"></Texture>
+                            <material diffuseColor="green"></material>
+                    </Appearance>
+                    <Box bottom='true' size='20, 0.5 , 20' solid='true' useGeoCache='true'></Box>
+                </shape>
+            </transform>
+
+            <!--PATAS-->
+            <transform DEF="PATAS" translation=" -0.3 0 0 ">
+                <transform DEF="PATA_D"  rotation="1.0 0.0 0.0 0.460 " translation="1.4 -0.6 -1">
+                    <shape>
+                        <Appearance>
+                            <!--<texture  url="texturas/caballete.jpg"></texture>-->
+                            <material  diffuseColor="0.6 0.6 0.6" specularColor=".5 .5 .5" transparency="0" ></material>
+                        </Appearance>
+                        <Cylinder bottom='true' radius='0.2' height='5.0' side='true' top='true'></Cylinder>
+                    </shape>
+                </transform>
+                 <transform DEF="PATA_IZQ"  rotation="1.0 0.0 0.0 -0.460 " translation="1.4 -0.6 1">
+                    <shape>
+                        <Appearance>
+                            <!--<texture  url="texturas/caballete.jpg"></texture>-->
+                                <material  diffuseColor="0.6 0.6 0.6" specularColor=".5 .5 .5" transparency="0" ></material>
+                        </Appearance>
+                        <Cylinder bottom='true' radius='0.2' height='5.0' side='true' top='true'></Cylinder>
+                    </shape>
+                </transform>
+            </transform>
+ <!--PATAS DEL OTRO LADO-->
+            <transform DEF="PATAS1" translation=" -2.2 0 0 ">
+                <transform USE="PATAS"></transform>
+            </transform>
+ <!--ESFERAS-->
+        <transform DEF="CIL" translation="-1.1 1.5 0">
+           <shape>
+               <Appearance>
+               <material  diffuseColor="0.6 0.6  0.6" specularColor=".5 .5 .5" transparency="0" ></material>
+               </appearance>
+               <Sphere radius="0.4"></Sphere>
+           </shape>
+       </transform>
+       <transform translation="2.2 0 0">
+           <transform USE="CIL"></transform>
+       </transform>
+<!--FIN PATAS-->
+<!--TEXTO-->
+   <transform scale='0.5 0.5 0.5' translation="0 5 0" rotation=" 0 1 0 0">
+    <shape>
+      <Appearance DEF='textApp'>
+          <material diffuseColor='1 0.5 0' ></material>
+      </Appearance>
+        <Text string='"Noria"' solid="false" > <fontstyle family="TYPEWRITER" style="BOLDITALIC" size="1.5"></fontstyle></Text>
+    </shape>
+   </transform>
+
+<!--ZONA MOVIL DE LA NORIA-->
+  <transform DEF="MOVIL" translation="0 1.55 0" >
+<!--Torus-->
+        <transform DEF="TORUS" rotation="0.0 1.0 0.0 1.57" translation="0.7 0 0" >
+            <shape>
+                <Appearance>
+                     <material diffuseColor="1 0.5 0" specularColor=".3 .3 .3" transparency="0" >   </material>
+                </Appearance>
+                <torus DEF="torus" innerRadius="0.06" outerRadius="3.0"></torus>
+            </shape>
+        </transform>
+
+        <transform DEF="TORUS_DER"  translation="-1.4 0 0">
+            <transform USE="TORUS"></transform>
+        </transform>
+
+<!--fin torus-->
+<!--barras-->
+            <transform DEF="CIL_1" rotation="0.0 0.0 1.0 1.57079" translation="0 3 0">
+                <shape>
+                    <Appearance>
+                         <!--<ImageTexture envMode='modulate' url="texturas/verde1.jpg"></Imagetexture>-->
+                        <material diffuseColor="1.0 0.5 0.0 " specularColor=".5 .5 .5" transparency="0"  ></material>
+                    </Appearance>
+                    <Cylinder bottom='true' radius='0.04' height='1.5' side='true' top='true'></Cylinder>
+                </shape>
+            </transform>
+
+           <transform DEF="CIL_2"  translation="0 -6 0">
+                <transform  USE="CIL_1" ></transform>
+            </transform>
+
+           <transform DEF="CIL_3"  translation="0 -3 -3">
+                <transform  USE="CIL_1" ></transform>
+            </transform>
+           <transform DEF="CIL_4" translation="0 -3 3">
+               <transform  USE="CIL_1" ></transform>
+            </transform>
+           <transform DEF="CIL_5" translation="0 -5.1 -2.1">
+               <transform  USE="CIL_1" ></transform>
+            </transform>
+            <transform DEF="CIL_7" translation="0 -0.9 2.1">
+               <transform  USE="CIL_1" ></transform>
+            </transform>
+
+            <transform DEF="CIL_6" translation="0 -5.1 2.1">
+               <transform  USE="CIL_1" ></transform>
+            </transform>
+
+             <transform DEF="CIL_8" translation="0 -0.9 -2.1">
+               <transform  USE="CIL_1" ></transform>
+            </transform>
+
+<!--fin barras-->
+<!--Cilindro central-->
+            <transform DEF="CIL_C" rotation="0.0 0.0 1.0 1.57079" translation="0 0 0">
+                <shape>
+                    <Appearance>
+                        <!--<ImageTexture envMode='modulate' url="texturas/verde1.jpg"></Imagetexture>-->
+                         <material DEF="Mat" diffuseColor="0.6 0.6 0.6 " specularColor=".5 .5 .5" transparency="0" ></material>
+                    </Appearance>
+                    <Cylinder bottom='true' radius='0.2' height='2.2' side='true' top='true'></Cylinder>
+                </shape>
+            </transform>
+ <!--fin cilindro central-->
+<!--RADIOS DE LOS TORUS-->
+        <!--TORUS 1-->
+        <transform DEF="RADIO">
+            <transform DEF="RADIO_1" translation="0.7 0 0">
+                <shape>
+                 <Appearance>
+                      <material DEF="Mat" diffuseColor="1 0.5  0" specularColor=".5 .5 .5" transparency="0" ></material>
+                    </Appearance>
+                    <Cylinder bottom='true' radius='0.03' height='6.0' side='true' top='true'></Cylinder>
+                </shape>
+            </transform>
+
+            <transform DEF="RADIO_2" rotation="1.0 0.0 0.0 -0.7853" translation="0 0.0 0">
+                <transform USE="RADIO_1" ></transform>
+            </transform>
+
+            <transform DEF="RADIO_3" rotation="1.0 0.0 0.0 0.7853" translation="0 0.0 0">
+                <transform USE="RADIO_1" ></transform>
+            </transform>
+             <transform DEF="RADIO_4" rotation="1.0 0.0 0.0 1.57" translation="0 0.0 0">
+                <transform USE="RADIO_1" ></transform>
+            </transform>
+        </transform>
+        <!--TORUS 2-->
+            <transform DEF="RADIO2"  translation="-1.4 0.0 0">
+                <transform USE="RADIO" ></transform>
+            </transform>
+
+<!--FIN RADIOS TORUS-->
+
+<!--  ASIENTOS    -->
+        <transform DEF="MOVIL2" translation="0 -2.1 -2.1">
+            <transform DEF="MOVIL_ASIENTOS" id="asiento_1" onclick="pick();" >
+                    <transform DEF="ASIENTO" translation="0 0 0 ">
+                        <transform DEF="BASE"  scale='0.4 0.3 0.4'  translation="0 -0.8 0"  >
+                             <Shape>
+                                 <Appearance>
+                                     <ImageTexture envMode='modulate' url="texturas/asiento1.jpg"/><!--   lila-->
+                                 </Appearance>
+                                 <Cylinder bottom='true' radius='1.2' height='1.0' side='true' top='false'></Cylinder>
+                             </Shape>
+                         </transform >
+
+                         <transform DEF="BARRA"  scale='0.4 0.3 0.4'  translation="0 -0.45 0"  >
+                             <Shape>
+                                 <Appearance>
+                                    <material diffuseColor="1 0.5  0.8" specularColor=".5 .5 .5" transparency="0" ></material>
+                                 </Appearance>
+                                 <Cylinder bottom='true' radius='0.1' height='3' side='true' top='false'></Cylinder>
+                             </Shape>
+                         </transform >
+
+                         <transform DEF="TECHO"  scale='0.5 0.4 0.4'  translation="0 -0.3 0">
+                             <Shape>
+                                 <Appearance>
+                                       <material id="material" diffuseColor="1 0.5  0.8" specularColor=".5 .5 .5" transparency="0" ></material>
+                                 </Appearance>
+                                 <Cone buttomRadius="5" height="1" buttom="true" side="true" solid="true"></cone>
+                             </Shape>
+                         </transform>
+                    </transform>
+        </transform>
+        </transform>
+
+        <transform DEF="MOVIL3" translation="0 3 0">
+           <transform DEF="MOVIL_ASIENTOS_2" id="asiento_2" onclick="pick();">
+            <transform DEF="ASIENTO2"  translation="0 0 0 ">
+                <transform DEF="BASE2"  scale='0.4 0.3 0.4'  translation="0 -0.8 0"  >
+                     <Shape>
+                         <Appearance>
+                           <ImageTexture envMode='modulate' url="texturas/asiento2.png"/>
+                         </Appearance>
+                         <Cylinder bottom='true' radius='1.2' height='1.0' side='true' top='false'></Cylinder>
+                     </Shape>
+                 </transform >
+
+                 <transform DEF="BARRA2"  scale='0.4 0.3 0.4'  translation="0 -0.45 0"  >
+                     <Shape>
+                         <Appearance>
+                             <!--<ImageTexture envMode='modulate' url="texturas/piel.jpg"/>-->
+                             <material diffuseColor="1 0.5  0" specularColor=".5 .5 .5"   shininess='0.145' transparency="0" ></material>
+                         </Appearance>
+                         <Cylinder bottom='true' radius='0.1' height='3' side='true' top='false'></Cylinder>
+                     </Shape>
+                 </transform >
+
+                 <transform DEF="TECHO2"  scale='0.5 0.4 0.4'  translation="0 -0.3 0">
+                     <Shape>
+                         <Appearance>
+                               <material  id="material2" diffuseColor="1 0.5  0" specularColor=".5 .5 .5" transparency="0" ></material>
+                         </Appearance>
+                         <Cone buttomRadius="5" height="1" buttom="true" side="true" solid="true"></cone>
+                     </Shape>
+                 </transform>
+            </transform>
+        </transform>
+        </transform>
+
+     <transform DEF="MOVIL4" translation="0 0 -3" >
+           <transform USE="MOVIL_ASIENTOS_2" > </transform>
+        </transform>
+       <transform DEF="MOVIL5" translation="0 -3 0" >
+           <transform USE="MOVIL_ASIENTOS_2" > </transform>
+        </transform>
+
+       <transform DEF="MOVIL6" translation="0 0 3">
+           <transform USE="MOVIL_ASIENTOS_2" > </transform>
+        </transform>
+        <transform DEF="MOVIL7" translation="0 2.1 2.1">
+           <transform USE="MOVIL_ASIENTOS" > </transform>
+        </transform>
+
+        <transform DEF="MOVIL8" translation="0 2.1 -2.1">
+           <transform USE="MOVIL_ASIENTOS" > </transform>
+        </transform>
+        <transform DEF="MOVIL9" translation="0 -2.1 2.1">
+           <transform USE="MOVIL_ASIENTOS" > </transform>
+        </transform>
+    <!--FIN ASIENTOS-->
+     </transform>
+<!--FIN ZONA MOVIL-->
+
+<!--MOVIMIENTO-->
+    <!--MOVIMIENTO DE LA NORIA-->
+       <TimeSensor id='TIMER' cycleInterval='10' loop='true'></timesensor>
+       <OrientationInterpolator DEF='ROTOR_A' id="ROTORA" key='0 0.5 1' keyValue='1 0 0 0, 1 0 0 3.14, 1 0 0 6.28'></orientationinterpolator>
+
+       <ROUTE fromNode='TIMER' fromField='fraction_changed' toNode='ROTOR_A' toField='set_fraction'></route>
+       <ROUTE fromNode='ROTOR_A' fromField='value_changed' toNode='MOVIL' toField='rotation'></route>
+    <!--MOVIMIENTO DE LOS ASIENTOS-->
+       <OrientationInterpolator DEF='ROTOR_B' id="ROTORB" key='0 0.5 1' keyValue='1 0 0 0, 1 0 0 -3.14, 1 0 0 -6.28'></orientationinterpolator>
+       <ROUTE fromNode='TIMER' fromField='fraction_changed' toNode='ROTOR_B' toField='set_fraction'></route>
+       <ROUTE fromNode='ROTOR_B' fromField='value_changed' toNode='MOVIL_ASIENTOS' toField='rotation'></route>
+       <ROUTE fromNode='ROTOR_B' fromField='value_changed' toNode='MOVIL_ASIENTOS_2' toField='rotation'></route>
+<!--FIN MOVIMIENTO-->
+    </transform>
+      </scene>
+  </x3d>
+
+</div>
+
+</body>
+
+<script>
+
+var modes = [
+            {
+                 "name":"Examine",
+                 "option":"examine",
+                 "shortcut":"e",
+                 "mouseWheelScroll":"Zoom",
+                 "mouseLeft":"rotate",
+                 "mouseRight":"Zoom",
+                 "mouseWheelPress":"Pan"
+             },
+             {
+            	 "name":"Walk",
+            	 "option":"walk",
+            	 "shortcut":"w",
+            	 "mouseLeft":"Move forward",
+            	 "mouseRight":"Move backward"
+             },
+
+             {
+	        	 "name":"Turntable",
+	        	 "option":"turntable",
+	        	 "shortcut":"n",
+	        	 "mouseWheelScroll":"Zoom",
+	        	 "mouseLeft":"rotate",
+	        	 "mouseRight":"Zoom",
+	        	 "mouseWheelPress":"Pan"
+             },
+             {
+	        	 "name":"Fly",
+	        	 "option":"fly",
+	        	 "shortcut":"f",
+            	 "mouseLeft":"Move forward",
+            	 "mouseRight":"Move backward"
+             },
+             {
+	        	 "name":"Helicopter",
+	        	 "option":"helicopter",
+	        	 "shortcut":"h",
+            	 "mouseLeft":"Move forward",
+            	 "buttons":
+                	 [
+                	 	{"key":"8", "desc":"Look down"},
+                	 	{"key":"9", "desc":"Look up"},
+                	 	{"key":"6", "desc":"Move higher"},
+                	 	{"key":"7", "desc":"Move lower"}
+                	 ]
+             },
+             {
+	        	 "name":"Look at",
+	        	 "option":"lookAt",
+	        	 "shortcut":"l",
+            	 "mouseLeft":"Move in",
+            	 "mouseRight":"Move out"
+             },
+
+             {
+            	 "name":"Game",
+            	 "option":"game",
+            	 "shortcut":"g",
+            	 "mouse":"Rotate view",
+            	 "buttons":
+            	 [
+            	 	{"key":"&uarr;", "desc":"Move forward"},
+            	 	{"key":"&darr;", "desc":"Move backwards"},
+            	 	{"key":"&larr;", "desc":"Strafe left"},
+            	 	{"key":"&rarr;", "desc":"Strafe right"}
+            	 ]
+             }
+             ];
+
+var canvas;
+var context;
+
+function showModeDetails(mode)
+{
+	//Show shortcut
+	$("#shortcut").html(mode.shortcut);
+
+	//Show mouse operations
+	$.each(["mouse", "mouseLeft", "mouseRight", "mouseWheelScroll", "mouseWheelPress"], function(index, mouse) {
+		if(mode[mouse] !== undefined )
+		{
+			$("#"+mouse).html(mode[mouse]);
+			$("#"+mouse+"Row").show();
+		}
+		else
+			$("#"+mouse+"Row").hide();
+	});
+
+	//Delete old keys and display new one if applicable
+	$("#buttonTable").empty();
+	if(mode.buttons !== undefined)
+     {
+    	 $.each(mode.buttons, function(buttonIndex, button) {
+    		 $("#buttonTable").append("<tr><td><div class='key'>"+button.key + "</div></td><td>"+button.desc+"</td></tr>");
+    		});
+     }
+
+	//Handle turntable specialities
+	if(mode.name === "Turntable")
+	{
+		$("#turntableArea").show();
+		refreshTurntableParams();
+	}
+	else
+		$("#turntableArea").hide();
+}
+
+
+$(document).ready(function(){
+	//Add all modes to dropdown field
+	$.each(modes, function(index, value) {
+	     $('#modeSelect')
+	          .append($('<option>', { value : value.option })
+	          .text(value.name));
+
+	     if(index===0)
+	    	 showModeDetails(value);
+	});
+
+	//Listen for changed modes...
+	$("#modeSelect").on("change", function() {
+		var currentMode = this.value;
+		//...activate new mode...
+		document.getElementById('navType').setAttribute("type", currentMode);
+
+		//...and refresh hints
+		$.each(modes, function(index, value) {
+			if(value.option === currentMode)
+				showModeDetails(value);
+		});
+	});
+
+	//Listen for turntable param changes...
+	$('.turntableInput').on("change", function() {
+		refreshTurntableParams();
+	});
+
+	//Listen for pressed shortcuts...
+	$(document).on("keypress", function(event) {
+		var key = String.fromCharCode(event.which);
+
+		//...and refresh hints
+		$.each(modes, function(index, value) {
+
+			if(value.shortcut === key)
+			{
+				$("#modeSelect option[value='"+value.option+"']").attr('selected',true);
+				showModeDetails(value);
+			}
+		});
+	});
+
+	canvas = document.getElementById('turntableVis');
+	context = canvas.getContext('2d');
+
+	updateArc(0.2, 1.4);
+});
+
+</script>
+</html>
+
