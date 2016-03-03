@@ -131,7 +131,7 @@
             <transform DEF="SUELO" translation="0 -3 0" >
                 <shape>
                     <Appearance>
-                        <Texture  url="texturas/sueloapt.JPG"></Texture>
+                       <!-- <Texture  url="texturas/sueloapt.JPG"></Texture> -->
                             <material diffuseColor="green"></material>
                     </Appearance>
                     <Box bottom='true' size='20, 0.5 , 20' solid='true' useGeoCache='true'></Box>
@@ -288,7 +288,8 @@
                         <transform DEF="BASE"  scale='0.4 0.3 0.4'  translation="0 -0.8 0"  >
                              <Shape>
                                  <Appearance>
-                                     <ImageTexture envMode='modulate' url="texturas/asiento1.jpg"/><!--   lila-->
+                                    <!-- <ImageTexture  url="columna.jpg"><ImageTexture/>   lila-->
+                                     <material diffuseColor="0.5 0.5  0.8" specularColor=".5 .5 .5" transparency="0" ></material>
                                  </Appearance>
                                  <Cylinder bottom='true' radius='1.2' height='1.0' side='true' top='false'></Cylinder>
                              </Shape>
@@ -321,7 +322,8 @@
                 <transform DEF="BASE2"  scale='0.4 0.3 0.4'  translation="0 -0.8 0"  >
                      <Shape>
                          <Appearance>
-                           <ImageTexture envMode='modulate' url="texturas/asiento2.png"/>
+                           <!--<ImageTexture envMode='modulate' url="texturas/asiento2.png"/>-->
+                            <material diffuseColor="1 0.5  0.9" specularColor=".5 .5 .5"   shininess='0.145' transparency="0" ></material>
                          </Appearance>
                          <Cylinder bottom='true' radius='1.2' height='1.0' side='true' top='false'></Cylinder>
                      </Shape>
